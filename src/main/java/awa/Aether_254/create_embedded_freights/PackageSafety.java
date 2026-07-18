@@ -1,23 +1,26 @@
 package awa.Aether_254.create_embedded_freights;
 
 import com.simibubi.create.content.logistics.box.PackageItem;
-import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
 import java.util.ArrayDeque;
 import java.util.List;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.items.ItemStackHandler;
 
 public final class PackageSafety {
     private PackageSafety() {
     }
 
-    public static boolean canPack(ItemStack stack) {
+    public static boolean canPack(ItemStack stack, HolderLookup.Provider registries) {
         EmbeddedFreightsConfig.Data config = EmbeddedFreightsConfig.get();
         if (config.packageDepthLimitEnabled && exceedsPackageDepth(stack, config.maxPackageDepth))
             return false;
-        return !config.nbtDepthLimitEnabled || !exceedsNbtDepth(stack, config.maxNbtDepth);
+        return !config.nbtDepthLimitEnabled || !exceedsNbtDepth(stack, registries, config.maxNbtDepth);
     }
 
     private static boolean exceedsPackageDepth(ItemStack stack, int limit) {
@@ -33,7 +36,7 @@ public final class PackageSafety {
                 return true;
 
             ItemStackHandler contents = PackageItem.getContents(node.stack());
-            for (int slot = 0; slot < contents.getSlotCount(); slot++) {
+            for (int slot = 0; slot < contents.getSlots(); slot++) {
                 ItemStack nested = contents.getStackInSlot(slot);
                 if (nested.getItem() instanceof PackageItem)
                     pending.push(new PackageNode(nested, node.depth() + 1));
@@ -42,10 +45,13 @@ public final class PackageSafety {
         return false;
     }
 
-    private static boolean exceedsNbtDepth(ItemStack stack, int limit) {
+    private static boolean exceedsNbtDepth(ItemStack stack, HolderLookup.Provider registries, int limit) {
         try {
             ItemStack outerPackage = PackageItem.containing(List.of(stack.copy()));
-            return tagDepthExceeds(outerPackage.save(new CompoundTag()), limit);
+            Tag encoded = ItemStack.CODEC
+                .encodeStart(RegistryOps.create(NbtOps.INSTANCE, registries), outerPackage)
+                .getOrThrow();
+            return tagDepthExceeds(encoded, limit);
         } catch (RuntimeException | StackOverflowError ignored) {
             return true;
         }
