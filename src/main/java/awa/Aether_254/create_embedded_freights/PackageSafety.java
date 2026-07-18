@@ -1,7 +1,7 @@
 package awa.Aether_254.create_embedded_freights;
 
 import com.simibubi.create.content.logistics.box.PackageItem;
-import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
+import net.minecraftforge.items.ItemStackHandler;
 import java.util.ArrayDeque;
 import java.util.List;
 import net.minecraft.nbt.CompoundTag;
@@ -33,7 +33,7 @@ public final class PackageSafety {
                 return true;
 
             ItemStackHandler contents = PackageItem.getContents(node.stack());
-            for (int slot = 0; slot < contents.getSlotCount(); slot++) {
+            for (int slot = 0; slot < contents.getSlots(); slot++) {
                 ItemStack nested = contents.getStackInSlot(slot);
                 if (nested.getItem() instanceof PackageItem)
                     pending.push(new PackageNode(nested, node.depth() + 1));

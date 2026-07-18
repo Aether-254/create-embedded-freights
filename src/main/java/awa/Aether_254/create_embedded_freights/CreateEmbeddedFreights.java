@@ -1,10 +1,15 @@
 package awa.Aether_254.create_embedded_freights;
 
-import net.fabricmc.api.ModInitializer;
+import awa.Aether_254.create_embedded_freights.client.EmbeddedFreightsModMenu;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.loading.FMLLoader;
 
-public final class CreateEmbeddedFreights implements ModInitializer {
-    @Override
-    public void onInitialize() {
+@Mod("create_embedded_freights")
+public final class CreateEmbeddedFreights {
+    public CreateEmbeddedFreights() {
         EmbeddedFreightsConfig.load();
+        if (FMLLoader.getDist() == Dist.CLIENT)
+            EmbeddedFreightsModMenu.register();
     }
 }

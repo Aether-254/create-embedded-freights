@@ -4,10 +4,9 @@ import awa.Aether_254.create_embedded_freights.PackageSafety;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.simibubi.create.content.logistics.box.PackageItem;
 import com.simibubi.create.content.logistics.packager.PackagerBlockEntity;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
-import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.items.IItemHandler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -16,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 abstract class PackagerBlockEntityMixin {
     @Redirect(
         method = "attemptToSend(Ljava/util/List;)V",
-        at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/Item;canFitInsideContainerItems()Z", remap = true),
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/Item;canFitInsideContainerItems()Z"),
         remap = false
     )
     private boolean createEmbeddedFreights$allowNestedPackages(Item item) {
@@ -27,20 +26,18 @@ abstract class PackagerBlockEntityMixin {
         method = "attemptToSend(Ljava/util/List;)V",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/fabricmc/fabric/api/transfer/v1/storage/StorageView;extract(Ljava/lang/Object;JLnet/fabricmc/fabric/api/transfer/v1/transaction/TransactionContext;)J",
-            remap = false
+            target = "Lnet/minecraftforge/items/IItemHandler;extractItem(IIZ)Lnet/minecraft/world/item/ItemStack;"
         ),
         remap = false
     )
-    private long createEmbeddedFreights$rejectUnsafePackages(
-        StorageView<ItemVariant> view,
-        ItemVariant resource,
-        long maxAmount,
-        TransactionContext transaction
+    private ItemStack createEmbeddedFreights$rejectUnsafePackages(
+        IItemHandler inventory,
+        int slot,
+        int amount,
+        boolean simulate
     ) {
-        if (!PackageSafety.canPack(resource.toStack(1)))
-            return 0;
-        return view.extract(resource, maxAmount, transaction);
+        ItemStack extracted = inventory.extractItem(slot, amount, simulate);
+        return PackageSafety.canPack(extracted) ? extracted : ItemStack.EMPTY;
     }
 
     @ModifyExpressionValue(

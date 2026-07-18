@@ -5,11 +5,11 @@ import com.google.gson.GsonBuilder;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import net.fabricmc.loader.api.FabricLoader;
+import net.minecraftforge.fml.loading.FMLPaths;
 
 public final class EmbeddedFreightsConfig {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private static final Path PATH = FabricLoader.getInstance().getConfigDir().resolve("create_embedded_freights.json");
+    private static final Path PATH = FMLPaths.CONFIGDIR.get().resolve("create_embedded_freights.json");
 
     private static Data data = new Data();
 
