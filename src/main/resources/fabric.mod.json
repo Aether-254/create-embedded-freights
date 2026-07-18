@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "create_embedded_freights",
+  "version": "${version}",
+  "name": "Create: Embedded Freights",
+  "description": "Changes the Create packager so complete packages can be packed as items inside new packages, with configurable package-depth and NBT-depth safety limits.",
+  "authors": [
+    "Aether_254"
+  ],
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "awa.Aether_254.create_embedded_freights.CreateEmbeddedFreights"
+    ],
+    "modmenu": [
+      "awa.Aether_254.create_embedded_freights.client.EmbeddedFreightsModMenu"
+    ]
+  },
+  "mixins": [
+    "create_embedded_freights.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.17.2",
+    "minecraft": "1.20.1",
+    "create": ">=6.0.8",
+    "cloth-config": ">=11.1.136"
+  }
+}
